@@ -1,9 +1,13 @@
 package com.testlab2.application;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
@@ -23,6 +27,7 @@ class ApplicationControllerIntegrationTest {
     @MockBean
     private CryptoService cpservice;
 
+    @WithMockUser(username = "fakeuser", authorities = "admin")
     @Test
     void shouldGreetDefault() throws Exception {
         mockMvc.perform(get("/hello"))
@@ -31,6 +36,7 @@ class ApplicationControllerIntegrationTest {
                 .andExpect(content().string(equalTo("Hello Oscar")));
     }
 
+    @WithMockUser(username = "fakeuser", authorities = "admin")
     @Test
     void shouldGreetByName() throws Exception {
         String greetingName = "Ferguson";
@@ -40,11 +46,13 @@ class ApplicationControllerIntegrationTest {
                 .andExpect(content().string(equalTo("Hello Ferguson")));
     }
 
-    @Test
-    void getBitcoinData() throws Exception {
-        mockMvc.perform(get("/getBitcoinPrice"))
+    @WithMockUser(username = "fakeuser", authorities = "admin")
+    @ParameterizedTest
+    @ValueSource(strings = {"bitcoin", "ethereum", "cardano"})
+    void getCoinPrice(String crypto) throws Exception {
+        mockMvc.perform(get("/getCryptoPrice/" + crypto))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("The Price of Bitcoin is: " + cpservice.getCoinPrice())));
+                .andExpect(content().string(containsString("The Price of " + crypto + " is: " + cpservice.getCoinPrice(crypto))));
     }
 }

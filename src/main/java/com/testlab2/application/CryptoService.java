@@ -13,8 +13,8 @@ import java.util.Map;
 @Service
 public class CryptoService {
 
-    public String getCoinPrice() {
-        String coincapBitcoinAPIURL = "https://api.coincap.io/v2/assets/bitcoin";
+    public String getCoinPrice(String cryptoName) {
+        String coincapBitcoinAPIURL = "https://api.coincap.io/v2/assets/" + cryptoName;
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<DataFromAPI> response = restTemplate.getForEntity(coincapBitcoinAPIURL, DataFromAPI.class);
